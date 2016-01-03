@@ -39,7 +39,9 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
     long timeDif = 0;
     int rec = 0;
     int isRecording = 0;
+    File directory = Environment.getExternalStorageDirectory();
     ArrayList<Integer> soundIDs = new ArrayList<Integer>();
+    ArrayList<File> samples = new ArrayList<File>();
 
     String mFileName = "";
 
@@ -142,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
                     else if (isRecording == 0)
                         stopRecording();
                 }
-                       //Do something after 100ms
+                //Do something after 100ms
                 Log.e("over", "over");
                 playSingle();
                 startMetronome();
@@ -163,8 +165,16 @@ public class MainActivity extends AppCompatActivity implements View.OnTouchListe
         mRecorder = new MediaRecorder();
         mRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         mRecorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        mFileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/LoopyTunes/" + rec + ".ogg";
-        mRecorder.setOutputFile(mFileName);
+        File sample;
+        try {
+            sample = File.createTempFile("smp" + String.valueOf(rec), ".ogg", directory);
+        } catch (IOException e) {
+            Log.e("ERROR", "sdcard access error");
+            return;
+        }
+        samples.add(sample);
+        mFileName = sample.getAbsolutePath();
+        mRecorder.setOutputFile(sample.getAbsolutePath());
         mRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
         isRecording = 0;
         try {
